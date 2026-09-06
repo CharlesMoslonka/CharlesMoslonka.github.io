@@ -145,38 +145,87 @@
     font-size: 16px;
     padding: 12px 18px;
     text-decoration: none;
-    animation: clignote 0.7s step-end infinite;
+    animation: clignote 1.5s step-end infinite;
     z-index: 999;
   }
   a.ne-clicker-pas:active {
+    border-style: inset;
+  }
+  .soupe {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 102px;
+    z-index: 999;
+    cursor: pointer;
+    transform-origin: 50% 100%;
+    animation: tangage 2s ease-in-out infinite;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.5));
+  }
+  @keyframes tangage {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+  }
+  .boite-fromage {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.75);
+    display: none;
+    z-index: 1000;
+    text-align: center;
+  }
+  .boite-fromage.open { display: block; }
+  .boite-fromage img {
+    height: 80vh;
+    width: auto;
+    max-width: 90vw;
+    margin-top: 8vh;
+    box-sizing: border-box;
+    border: 8px ridge #c0c0c0;
+  }
+  .fermer-fromage {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: #ff0000;
+    border: 4px outset #ff6666;
+    color: #ffff00;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 4px 14px;
+    cursor: pointer;
+  }
+  .fermer-fromage:active {
     border-style: inset;
   }
 </style>
 </head>
 <body>
   <div class="cadre">
-    <div style="font-size: 28px;">&#127880; &#127874; &#127880;</div>
+    <div style="font-size: 28px;">🍞🍞🍞 🎈 🎈 🍞🍞🍞</div>
     <h1 class="wordart">LES 30 ANS DE CHARLES !!</h1>
     <div class="clignotant">*** BIENVENU(E) SUR MA PAGE WEB ***</div>
     <hr class="arcenciel">
 
-    <div class="defile"><span>&#9733; FETE ! &#9733; GATEAU ! &#9733; DANSE ! &#9733; CHANT ! &#9733; VENEZ NOMBREUX ! &#9733;</span></div>
+    <div class="defile"><span>&#9733; FETE ! &#9733; CHAMPAGNE ! &#9733; TWERK AGRESSIF ! &#9733; PETITS FOURS ! &#9733; VA CHERCHER BONHEUR CHEZ TON MARCHAND DE JOURNAUX ! &#9733;</span></div>
 
     <p>
-      <span class="gif">&#128111;</span>
-      Salut a tous mes amis !! Cette annee je fais mes <b>30 ans</b> (!!) et je vous invite a ma fete !!
-      <span class="gif gauche">&#129345;</span>
+      <span class="gif">🗿</span>
+      Salut à tous mes amies et amis !! 
+      <br>Cette année je fais mes <b>30 ans</b> (!!) et je vous invite à ma fête !!
+      <span class="gif gauche">🗿</span>
     </p>
 
     <h2>Les Details Importants</h2>
     <table class="infos">
-      <tr><th>Quand ?</th><td>Samedi 24 Octobre 2026 a partir de 20h00</td></tr>
-      <tr><th>Ou ?</th><td>Chez moi ! (le plan d'acces bientot ici)</td></tr>
+      <tr><th>Quand ?</th><td>Samedi 24 Octobre 2026 à partir de 20h00</td></tr>
+      <tr><th>Ou ?</th><td>Chez ma maman (trop bien)</td></tr>
       <tr><th>Quoi ?</th><td>Vin, Vin, vin, et surprise !!</td></tr>
-      <tr><th>Dress code ?</th><td>Le plus moche possible &#128526;</td></tr>
+      <tr><th>Dress code ?</th><td>✨ Le plus beau possible ✨</td></tr>
     </table>
 
-    <p><b>Merci de confirmer votre presence avant le 15 octobre :</b></p>
+    <p><b>Merci de confirmer votre présence avant le 15 octobre :</b></p>
     <div style="margin: 10px 0;">
       <a class="bouton" href="mailto:mon.email@exemple.fr?subject=Je+viens+a+la+fete%21%21">&#9989; JE VIENS !</a>
       <a class="bouton" href="mailto:mon.email@exemple.fr?subject=Je+ne+peux+pas+venir%21%21">&#10060; JE PEUX PAS :(</a>
@@ -189,10 +238,27 @@
       Opti-mise pour Netscape Navigator 4.0 et Internet Explorer 5 &#8212; resolution 800x600 minimum<br>
       Webmaster : CHARLES &#8212; Derniere mise a jour : 06/09/2026
     </p>
-    <div style="font-size: 28px;">&#129345; &#127881; &#129345;</div>
+    <div style="font-size: 28px;">🗿 🗿 🗿 🗿 🗿</div>
   </div>
   <a class="ne-clicker-pas" href="secret.html">&#9888; NE CLICKER PAS &#9888;</a>
+  <img class="soupe" src="img/soupe.png" alt="Boite de soupe" title="Clique sur la soupe...">
+  <div class="boite-fromage" id="fromage">
+    <button class="fermer-fromage" id="fermerFromage" title="Fermer">&#10006;</button>
+    <img src="img/cheese.jpeg" alt="Du fromage !!">
+  </div>
   <script>
+    (function () {
+      const boite = document.getElementById('fromage');
+      document.querySelector('.soupe').addEventListener('click', function () {
+        boite.classList.add('open');
+      });
+      document.getElementById('fermerFromage').addEventListener('click', function () {
+        boite.classList.remove('open');
+      });
+      boite.addEventListener('click', function (e) {
+        if (e.target === boite) boite.classList.remove('open');
+      });
+    })();
     (function () {
       const TAILLE_INITIALE = 90;
       const TAILLE_MIN = 35;
