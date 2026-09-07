@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>~*~ La Fête d'Anniversaire de Charles ~*~</title>
 <style>
+  @font-face {
+    font-family: 'Comic Neue';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('fonts/comic-neue-regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Comic Neue';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('fonts/comic-neue-bold.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Comic Neue';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('fonts/comic-neue-italic.woff2') format('woff2');
+  }
   body {
     background-color: #05056a;
     background-image: url("img/background.jpeg");
@@ -12,7 +33,7 @@
     background-size: auto 20vh;
     background-attachment: fixed;
     color: #ffff00;
-    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+    font-family: "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive;
     text-align: center;
     margin: 0;
     padding: 20px;
@@ -176,8 +197,9 @@
   }
   .boite-fromage.open { display: block; }
   .boite-fromage img {
-    height: 80vh;
+    height: auto;
     width: auto;
+    max-height: 80vh;
     max-width: 90vw;
     margin-top: 8vh;
     box-sizing: border-box;
