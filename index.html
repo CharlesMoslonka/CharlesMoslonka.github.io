@@ -164,7 +164,7 @@
     font-size: 16px;
     padding: 12px 18px;
     text-decoration: none;
-    animation: clignote 1.5s step-end infinite;
+    animation: clignote 2.5s step-end infinite;
     z-index: 999;
   }
   a.ne-clicker-pas:active {
@@ -252,7 +252,7 @@
     </div>
 
     <hr class="arcenciel">
-    <p>Vous etes le <span class="compteur">0001337</span>eme visiteur depuis 1998</p>
+    <p>Vous etes le <span class="compteur">0001337</span>eme visiteur depuis 1996</p>
     <p class="pied">
       &#128679; Site en construction &#128679;<br>
       Opti-mise pour Netscape Navigator 4.0 et Internet Explorer 5 &#8212; resolution 800x600 minimum<br>
@@ -260,7 +260,7 @@
     </p>
     <div style="font-size: 28px;">🗿 🗿 🗿 🗿 🗿</div>
   </div>
-  <a class="ne-clicker-pas" href="secret.html">&#9888; NE CLICKER PAS &#9888;</a>
+  <a class="ne-clicker-pas" href="secret.html">&#9888; NE CLIQUER PAS &#9888;</a>
   <img class="soupe" src="img/soupe.png" alt="Boite de soupe" title="Clique sur la soupe...">
   <div class="boite-fromage" id="fromage">
     <button class="fermer-fromage" id="fermerFromage" title="Fermer">&#10006;</button>
@@ -282,7 +282,7 @@
     (function () {
       const TAILLE_INITIALE = 90;
       const TAILLE_MIN = 35;
-      const MAX_TETES = 40;
+      const MAX_TETES = 30;
       const VITESSE = 2.4;
 
       const tetes = [];
@@ -342,6 +342,13 @@
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
+    })();
+    (function () {
+      const compteur = document.querySelector('.compteur');
+      if (compteur) {
+        const n = Math.floor(Math.random() * 9000000) + 10000;
+        compteur.textContent = String(n).padStart(7, '0');
+      }
     })();
   </script>
 </body>

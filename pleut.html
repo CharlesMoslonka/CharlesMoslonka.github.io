@@ -50,6 +50,15 @@
         color: var(--bolt-color);
         box-shadow: 0 0 30px rgba(125, 211, 252, 0.9);
     }
+    .grosse-btn small {
+        display: block;
+        margin-top: 6px;
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 1px;
+        text-transform: none;
+        opacity: 0.75;
+    }
     .message a {
         pointer-events: auto;
         font-family: "JetBrains Mono", ui-monospace, monospace;
@@ -88,7 +97,7 @@
 <body>
     <canvas id="c"></canvas>
     <div class="message" id="message">
-        <button class="grosse-btn" id="lancer">&#9660; Lancer la chute &#9660;</button>
+        <button class="grosse-btn" id="lancer"><span id="lancerTxt">&#9660; Lancer la chute &#9660;</span><small>Montez le son !</small></button>
         <a href="secret.html">&lt; retour</a>
     </div>
     <audio id="pluie" src="sound/raining_cut.mp3" preload="auto"></audio>
@@ -98,6 +107,7 @@
     const ac = document.getElementById('pluie');
     const sonBtn = document.getElementById('sonBtn');
     const lancerBtn = document.getElementById('lancer');
+    const lancerTxt = document.getElementById('lancerTxt');
     const message = document.getElementById('message');
     const imgCharlie = new Image();
     imgCharlie.src = 'img/skydiving.png';
@@ -160,7 +170,7 @@
     function endShow() {
         show.running = false;
         message.style.visibility = '';
-        lancerBtn.textContent = '\u21bb Rejouer la chute';
+        lancerTxt.textContent = '\u21bb Rejouer la chute';
     }
     lancerBtn.addEventListener('click', startShow);
 
@@ -204,7 +214,7 @@
     function step(dt) {
         ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
         acc++;
-        if (acc % 16 === 0 || arcs.length === 0) {
+        if (acc % 40 === 0 || arcs.length === 0) {
             const n = 1 + (Math.random() < 0.5 ? 1 : 0);
             for (let b = 0; b < n; b++) {
                 const fromTop = Math.random() < 0.5;
