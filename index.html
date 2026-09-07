@@ -219,6 +219,105 @@
   .fermer-fromage:active {
     border-style: inset;
   }
+  a.infos-ici {
+    color: #cc0000;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  a.infos-ici:hover {
+    background-color: #ffff00;
+  }
+  .modal-adresse {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.75);
+    display: none;
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-adresse.open { display: flex; }
+  .fenetre-adresse {
+    background-color: #c0c0c0;
+    border: 4px outset #dfdfdf;
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.5);
+    width: 320px;
+    max-width: 92vw;
+    text-align: center;
+    transition: width 0.25s ease;
+  }
+  .fenetre-adresse.agrandi { width: 560px; }
+  .barre-titre {
+    background: linear-gradient(90deg, #000080, #1084d0);
+    border-bottom: 2px solid #000000;
+    color: #ffffff;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 4px 6px;
+    text-align: left;
+  }
+  .barre-titre button {
+    float: right;
+    background-color: #c0c0c0;
+    border: 2px outset #dfdfdf;
+    color: #000000;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 6px;
+  }
+  .barre-titre button:active { border-style: inset; }
+  .corps-adresse {
+    font-family: "Courier New", monospace;
+    color: #000000;
+    padding: 16px;
+  }
+  .corps-adresse input {
+    background-color: #ffffff;
+    border: 2px inset #dfdfdf;
+    font-family: "Courier New", monospace;
+    padding: 4px;
+    width: 100%;
+    max-width: 180px;
+    box-sizing: border-box;
+  }
+  .corps-adresse button {
+    background-color: #c0c0c0;
+    border: 3px outset #dfdfdf;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    padding: 4px 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .corps-adresse button:active { border-style: inset; }
+  .erreur-adresse {
+    color: #cc0000;
+    font-weight: bold;
+    min-height: 1.3em;
+    margin: 8px 0 0;
+  }
+  .secret-adresse {
+    display: none;
+    text-align: left;
+    background-color: #ffffff;
+    border: 2px inset #dfdfdf;
+    margin: 12px;
+    padding: 12px;
+    font-family: "Comic Relief", "Comic Sans MS", cursive;
+    font-size: 16px;
+    color: #000000;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 60vh;
+    overflow: auto;
+  }
+  .secret-adresse.visible { display: block; }
 </style>
 </head>
 <body>
@@ -240,7 +339,7 @@
     <h2>Les Details Importants</h2>
     <table class="infos">
       <tr><th>Quand ?</th><td>Samedi 24 Octobre 2026 à partir de 20h00</td></tr>
-      <tr><th>Ou ?</th><td>Chez ma maman (trop bien)</td></tr>
+      <tr><th>Ou ?</th><td>Chez ma maman (trop bien) <a class="infos-ici" id="lienAdresse" title="Chut... c'est secret">&#128278; Infos ici !</a></td></tr>
       <tr><th>Quoi ?</th><td>Vin, Vin, vin, et surprise !!</td></tr>
       <tr><th>Dress code ?</th><td>✨ Le plus beau possible ✨</td></tr>
     </table>
@@ -266,6 +365,18 @@
     <button class="fermer-fromage" id="fermerFromage" title="Fermer">&#10006;</button>
     <img src="img/cheese.jpeg" alt="Du fromage !!">
   </div>
+  <div class="modal-adresse" id="modalAdresse">
+    <div class="fenetre-adresse" id="fenetreAdresse">
+      <div class="barre-titre">C:\SECRETS\ADRESSE.EXE<button type="button" id="fermerAdresse" title="Fermer">&#10006;</button></div>
+      <div class="corps-adresse" id="demandeAdresse">
+        <p>*** MOT DE PASSE REQUIS ***</p>
+        <input type="password" id="mdpAdresse" autocomplete="off">
+        <button type="button" id="validerMdp">VALIDER</button>
+        <p class="erreur-adresse" id="erreurAdresse"></p>
+      </div>
+      <pre class="secret-adresse" id="secretAdresse"></pre>
+    </div>
+  </div>
   <script>
     (function () {
       const boite = document.getElementById('fromage');
@@ -278,6 +389,75 @@
       boite.addEventListener('click', function (e) {
         if (e.target === boite) boite.classList.remove('open');
       });
+    })();
+    (function () {
+      // PASTE BLOB HERE U DIMWIT
+      const BLOB = "sfxN6y7JZ3h36idUVtsjR6zWIpzD5H7jyvd71IG41lVde61t+jnKFj+SKcZjpcHLJNR7cEURBB/VriSVmfBAMoNZBioV44YL53duVNynwqBUdcL3jDKuinNMSpGF28fbDd97rbWTcvQn6nbL0nfLj4aPnJd5SpsPcd0uOz82vYAXGEHwdlvLHIyI9nED0o/81UBToKaYZ/9/0fIj3c1hPc8uq8L0fUrRpTa65nX2xZ+dkk0auJ7CNtOpi4RZ7MTcvLAedquDAMcMGOPnoFuCVzTMVrNZalJSii6ld7Fy/CS7OzkXe+rq14a1jnezkGinhlMTF/9BP6GN10W22BaKsAdyPL0BzO5dwBAOrBkNXloCmL9E+7+RIfsOVBPqNVGgcxS7q8G3+WsFGKJeM7mA5PuTpxLZIHdeeUpxQJ+RDU8d9GN24bhHkx4NSjWe+XAu7pKqIpvrVOv/SRZuainWf97lHLK344wq1h9K1UnicqXvUCNx9Xo3C5Hzemkg/PE3A+Y1cQbb2YHj8iHlSs3AdfSBFNyOvTeuxCz7L1VLwMb6GEVENgBp5ifOR5uRiDnbTDWFHQqCESAa9rVIZtcAKTlSv3lp0GduCdnA3LXquTYwK1gBzUx96rr3eoWQqkqgEJ1VE0CWGRBW1Jinv3ba9nxly3+IUBfec8PJzLob2oaxuh9KeLWos8dDc3VsbIFkLx4VSSI/o0FWoT5csS0tXuwo6j54ScIN6qXYlDp+PiSbEzlRGlGVBFa7zumfSSeXb9TQ2vkDPW5dTbn/F0HQWnJXdq5uLT/ahD7Rl2vDOkRIl8U0wix3vRngc/M2nYKLJskRV3y8orUIj3XZXncw9XCyHhskWK4/GqNSnSwjXya/uJLwWzHtX7lkbAj8EGkduG6iUN5vDapc1r5vKbRNvVfHhRP+1SuJzjv1kWYXQR3/WoWSap/clCVlVYX6Cf5/7GD5QKRW+ZgVgqjELNvFajanD4gYG9nmCNtJXSeieIfiP4GK1BW+IDydG5AuliR3i7E/y7/MbMcEu/pBO9SUAxf5dm/Nh3Cc1s+C3/MXDIhvurnCe6e2JPEaOdJP+v3gg4hfzTnvxrJsKUFC2ig=";
+      const ITERATIONS = 250000;
+
+      const modal = document.getElementById('modalAdresse');
+      const fenetre = document.getElementById('fenetreAdresse');
+      const demande = document.getElementById('demandeAdresse');
+      const champ = document.getElementById('mdpAdresse');
+      const bouton = document.getElementById('validerMdp');
+      const erreur = document.getElementById('erreurAdresse');
+      const secret = document.getElementById('secretAdresse');
+
+      async function dechiffrerSecret(mdp) {
+        const data = Uint8Array.from(atob(BLOB), (c) => c.charCodeAt(0));
+        const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(mdp), "PBKDF2", false, ["deriveKey"]);
+        const cle = await crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: data.slice(0, 16), iterations: ITERATIONS, hash: "SHA-256" },
+          base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]
+        );
+        const clair = await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: data.slice(16, 28) }, cle, data.slice(28)
+        );
+        return new TextDecoder().decode(clair);
+      }
+
+      function ouvrir() {
+        modal.classList.add('open');
+        erreur.textContent = '';
+        champ.focus();
+      }
+      function fermer() {
+        modal.classList.remove('open');
+        champ.value = '';
+        demande.style.display = '';
+        secret.classList.remove('visible');
+        fenetre.classList.remove('agrandi');
+      }
+
+      async function valider() {
+        const mdp = champ.value;
+        if (!mdp) return;
+        bouton.disabled = true;
+        bouton.textContent = '...';
+        erreur.textContent = '';
+        try {
+          const texte = await dechiffrerSecret(mdp);
+          secret.textContent = texte;
+          demande.style.display = 'none';
+          fenetre.classList.add('agrandi');
+          secret.classList.add('visible');
+        } catch (e) {
+          erreur.textContent = '!!! ACCES REFUSE !!!';
+          champ.select();
+        } finally {
+          bouton.disabled = false;
+          bouton.textContent = 'VALIDER';
+        }
+      }
+
+      document.getElementById('lienAdresse').addEventListener('click', ouvrir);
+      document.getElementById('fermerAdresse').addEventListener('click', fermer);
+      modal.addEventListener('click', function (e) { if (e.target === modal) fermer(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) fermer();
+      });
+      bouton.addEventListener('click', valider);
+      champ.addEventListener('keydown', function (e) { if (e.key === 'Enter') valider(); });
     })();
     (function () {
       const TAILLE_INITIALE = 90;
