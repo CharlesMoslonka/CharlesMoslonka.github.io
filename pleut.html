@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il pleut...</title>
+<link rel="icon" href="favicons/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="favicons/apple-touch-icon.png">
+<link rel="manifest" href="favicons/site.webmanifest">
+<style>
+    :root {
+        --bg-color: #04060f;
+        --bolt-color: #7dd3fc;
+        --bolt-core: #ffffff;
+    }
+    * { margin: 0; padding: 0; }
+    body { height: 100vh; background: var(--bg-color); overflow: hidden; }
+    canvas { display: block; }
+    .message {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        pointer-events: none;
+        text-align: center;
+        padding: 20px;
+    }
+    .grosse-btn {
+        pointer-events: auto;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: clamp(18px, 3vw, 28px);
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--bg-color);
+        background: var(--bolt-color);
+        border: 2px solid var(--bolt-color);
+        padding: 18px 44px;
+        cursor: pointer;
+        box-shadow: 0 0 18px rgba(125, 211, 252, 0.6);
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .grosse-btn:hover {
+        background: transparent;
+        color: var(--bolt-color);
+        box-shadow: 0 0 30px rgba(125, 211, 252, 0.9);
+    }
+    .message a {
+        pointer-events: auto;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 14px;
+        color: var(--bolt-color);
+        border: 1px solid var(--bolt-color);
+        padding: 8px 20px;
+        text-decoration: none;
+        background: rgba(4, 6, 15, 0.6);
+        transition: background 0.2s, color 0.2s;
+    }
+    .message a:hover {
+        background: var(--bolt-color);
+        color: var(--bg-color);
+    }
+    .son {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 10;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        color: var(--bolt-color);
+        border: 1px solid var(--bolt-color);
+        padding: 6px 12px;
+        background: rgba(4, 6, 15, 0.6);
+        cursor: pointer;
+        user-select: none;
+    }
+    .son.off { animation: clignote 1s step-end infinite; }
+    @keyframes clignote {
+        50% { opacity: 0; }
+    }
+</style>
+</head>
+<body>
+    <canvas id="c"></canvas>
+    <div class="message" id="message">
+        <button class="grosse-btn" id="lancer">&#9660; Lancer la chute &#9660;</button>
+        <a href="secret.html">&lt; retour</a>
+    </div>
+    <audio id="pluie" src="sound/raining_cut.mp3" preload="auto"></audio>
+    <div class="son off" id="sonBtn" title="Activer / couper le son de pluie">&#9834; PLUIE : OFF</div>
+<script>
+    // ---------- etat ----------
+    const ac = document.getElementById('pluie');
+    const sonBtn = document.getElementById('sonBtn');
+    const lancerBtn = document.getElementById('lancer');
+    const message = document.getElementById('message');
+    const imgCharlie = new Image();
+    imgCharlie.src = 'img/skydiving.png';
+    const BURST_AT = 28;
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const show = { running: false, burst: false, pouring: false, drops: [], spawnAcc: 0, flash: 0 };
+
+    // ---------- son ----------
+    ac.volume = 0.8;
+    function syncSon() {
+        const on = !ac.paused;
+        sonBtn.innerHTML = '&#9834; PLUIE : ' + (on ? 'ON' : 'OFF');
+        sonBtn.classList.toggle('off', !on);
+    }
+    function startSon() { ac.play().then(syncSon).catch(syncSon); }
+    function stopSon() { ac.pause(); syncSon(); }
+    sonBtn.addEventListener('click', () => { ac.paused ? startSon() : stopSon(); });
+    ac.addEventListener('playing', syncSon);
+    ac.addEventListener('pause', () => { syncSon(); if (show.running) endShow(); });
+    ac.addEventListener('ended', () => { syncSon(); show.pouring = false; });
+    // pas d'autoplay : la musique ne demarre qu'au clic sur "Lancer la chute"
+
+    // ---------- la chute ----------
+    function rand(a, b) { return a + Math.random() * (b - a); }
+    function spawnDrop(s, ySpread) {
+        show.drops.push({
+            x: rand(-30, w + 30),
+            y: -s - rand(0, ySpread),
+            s: s,
+            rot: rand(-0.5, 0.5),
+            spin: rand(-0.5, 0.5),
+            vx: rand(-25, 25),
+            vy: rand(160, 240) + s * 1.6,
+            tvy: 380 + s * 4.2
+        });
+    }
+    function doBurst() {
+        show.burst = true;
+        show.pouring = true;
+        show.flash = 0.85;
+        for (let i = 0; i < 120; i++) {
+            const s = Math.random() < 0.25 ? rand(80, 200) : rand(16, 60);
+            spawnDrop(s, h * 0.9 + s);
+        }
+        for (let b = 0; b < 4; b++) spawn(rand(0, w), 0, rand(0, w), rand(0, h * 0.7));
+    }
+    function startShow() {
+        if (show.running) return;
+        show.running = true;
+        show.burst = false;
+        show.pouring = false;
+        show.spawnAcc = 0;
+        show.drops.length = 0;
+        show.flash = 0;
+        message.style.visibility = 'hidden';
+        if (ac.paused) ac.play().catch(() => {});
+        ac.currentTime = 0;
+        ensureLoop();
+    }
+    function endShow() {
+        show.running = false;
+        message.style.visibility = '';
+        lancerBtn.textContent = '\u21bb Rejouer la chute';
+    }
+    lancerBtn.addEventListener('click', startShow);
+
+    // ---------- arcs electriques ----------
+    const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+    const css = getComputedStyle(document.documentElement);
+    const bg = (css.getPropertyValue('--bg-color') || '#04060f').trim();
+    const bolt = (css.getPropertyValue('--bolt-color') || '#7dd3fc').trim();
+    const core = (css.getPropertyValue('--bolt-core') || '#ffffff').trim();
+    let w, h; const arcs = [];
+    const mouse = { x: -1, y: -1 };
+    function build() { w = cv.width = innerWidth; h = cv.height = innerHeight; }
+    addEventListener('resize', build);
+    addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    build();
+    function makePath(x1, y1, x2, y2, disp, depth, branches, out) {
+        let pts = [[x1, y1], [x2, y2]];
+        for (let g = 0; g < depth; g++) {
+            const np = [];
+            for (let i = 0; i < pts.length - 1; i++) {
+                const a = pts[i], b = pts[i + 1];
+                const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+                let nx = -(b[1] - a[1]), ny = (b[0] - a[0]); const len = Math.hypot(nx, ny) || 1;
+                const o = (Math.random() - 0.5) * disp;
+                np.push(a); np.push([mx + nx / len * o, my + ny / len * o]);
+            }
+            np.push(pts[pts.length - 1]); pts = np; disp *= 0.55;
+        }
+        out.push(pts);
+        if (branches > 0 && Math.random() < 0.9) {
+            const bi = (Math.random() * (pts.length - 2) | 0) + 1, from = pts[bi];
+            makePath(from[0], from[1], from[0] + (Math.random() - 0.5) * 320, from[1] + (Math.random() - 0.3) * 320, disp * 5, 4, branches - 1, out);
+        }
+    }
+    function spawn(x1, y1, x2, y2) {
+        const paths = []; makePath(x1, y1, x2, y2, Math.hypot(x2 - x1, y2 - y1) * 0.34, 6, 3, paths);
+        arcs.push({ paths, life: 1, end: [x2, y2] });
+    }
+    function strokePaths(a) { for (const p of a.paths) { ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]); for (let k = 1; k < p.length; k++) ctx.lineTo(p[k][0], p[k][1]); ctx.stroke(); } }
+    let acc = 0;
+    function step(dt) {
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+        acc++;
+        if (acc % 16 === 0 || arcs.length === 0) {
+            const n = 1 + (Math.random() < 0.5 ? 1 : 0);
+            for (let b = 0; b < n; b++) {
+                const fromTop = Math.random() < 0.5;
+                const x1 = fromTop ? Math.random() * w : (Math.random() < 0.5 ? 0 : w), y1 = fromTop ? 0 : Math.random() * h;
+                const useM = mouse.x > 0 && Math.random() < 0.55;
+                spawn(x1, y1, useM ? mouse.x : Math.random() * w, useM ? mouse.y : Math.random() * h);
+            }
+        }
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        for (let i = arcs.length - 1; i >= 0; i--) {
+            const a = arcs[i]; a.life -= 0.045;
+            if (a.life <= 0) { arcs.splice(i, 1); continue; }
+            const fg = ctx.createRadialGradient(a.end[0], a.end[1], 0, a.end[0], a.end[1], 90);
+            fg.addColorStop(0, bolt); fg.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.globalAlpha = a.life * 0.4; ctx.fillStyle = fg;
+            ctx.beginPath(); ctx.arc(a.end[0], a.end[1], 90, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 18; ctx.shadowColor = bolt;
+            ctx.strokeStyle = bolt; ctx.globalAlpha = a.life * 0.9; ctx.lineWidth = 3.4; strokePaths(a);
+            ctx.shadowBlur = 6; ctx.shadowColor = core;
+            ctx.strokeStyle = core; ctx.globalAlpha = a.life; ctx.lineWidth = 1.6; strokePaths(a);
+        }
+        ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+
+        // pluie de Charles, synchronisee sur la musique
+        if (show.running) {
+            const t = ac.currentTime;
+            if (!show.burst) {
+                const rate = 0.3 + (t / BURST_AT) * 5.2;
+                show.spawnAcc += rate * dt;
+                while (show.spawnAcc >= 1) { show.spawnAcc--; spawnDrop(rand(12, 34), 120); }
+                if (t >= BURST_AT) doBurst();
+            } else if (show.pouring) {
+                const rate = 11 + 2 * Math.sin(t * 0.9);
+                show.spawnAcc += rate * dt;
+                while (show.spawnAcc >= 1) {
+                    show.spawnAcc--;
+                    spawnDrop(Math.random() < 0.28 ? rand(60, 160) : rand(16, 55), 220);
+                }
+            } else if (show.drops.length === 0) {
+                endShow();
+            }
+        }
+        const AR = imgCharlie.naturalWidth ? imgCharlie.naturalHeight / imgCharlie.naturalWidth : 0.75;
+        for (let i = show.drops.length - 1; i >= 0; i--) {
+            const d = show.drops[i];
+            d.vy = Math.min(d.vy + 80 * dt, d.tvy);
+            d.x += d.vx * dt; d.y += d.vy * dt; d.rot += d.spin * dt;
+            if (d.y - d.s > h) { show.drops.splice(i, 1); continue; }
+            if (!imgCharlie.complete || !imgCharlie.naturalWidth) continue;
+            ctx.save();
+            ctx.translate(d.x, d.y);
+            ctx.rotate(d.rot);
+            ctx.drawImage(imgCharlie, -d.s / 2, -d.s * AR / 2, d.s, d.s * AR);
+            ctx.restore();
+        }
+        if (show.flash > 0.01) {
+            ctx.fillStyle = 'rgba(255,255,255,' + show.flash.toFixed(3) + ')';
+            ctx.fillRect(0, 0, w, h);
+            show.flash *= 0.9;
+        } else show.flash = 0;
+    }
+    let prev = performance.now(), rafOn = false;
+    function frame(now) {
+        const dt = Math.min((now - prev) / 1000, 0.05); prev = now;
+        step(dt);
+        if (reduceMotion && !show.running && show.drops.length === 0) { rafOn = false; return; }
+        requestAnimationFrame(frame);
+    }
+    function ensureLoop() { if (rafOn) return; rafOn = true; prev = performance.now(); requestAnimationFrame(frame); }
+    if (reduceMotion) {
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+        spawn(w * 0.3, 0, w * 0.6, h * 0.7); spawn(w * 0.7, 0, w * 0.4, h * 0.6);
+        step(0.016);
+    } else ensureLoop();
+</script>
+</body>
+</html>
