@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan du site</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<style>
+  body { background: #05056a; color: #ffff00; font-family: "Comic Sans MS", cursive; text-align: center; }
+  a { color: #00ffff; }
+</style>
+</head>
+<body>
+<h1>~*~ Plan du site ~*~</h1>
+<ul id="plan"></ul>
+<noscript><a href="?r=x1&fetes=1">fetes</a> <a href="?r=x2&gateau=1">gateau</a> <a href="?r=x3&invites=1">invites</a></noscript>
+<script>
+(function () {
+  var mots = ['anniversaire', 'fete', 'gateau', 'invites', 'musique', 'danse', 'ballons',
+    'confettres', 'surprise', 'boisson', 'grignotage', 'jeux', 'discours', 'photos',
+    'temoignages', 'livre-dor', 'playlist', 'horaires', 'adresse', 'contact', 'carte',
+    'parking', 'hebergement', 'cadeaux', 'souhaits', 'invitation', 'confirmation',
+    'menu', 'recettes', 'tarte', 'bougies', 'feux-dartifice', 'voisins', 'animaux'];
+  var base = location.pathname;
+  var plan = document.getElementById('plan');
+  function rnd(n) {
+    var s = '';
+    var c = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    for (var i = 0; i < (n || 8); i++) s += c.charAt(Math.floor(Math.random() * c.length));
+    return s;
+  }
+  for (var i = 0; i < 500; i++) {
+    var m = mots[Math.floor(Math.random() * mots.length)];
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = base + '?r=' + rnd() + '&' + m + '=' + rnd(6) + '#' + rnd(4);
+    a.textContent = m + ' - page ' + rnd(4);
+    li.appendChild(a);
+    plan.appendChild(li);
+  }
+})();
+</script>
+</body>
+</html>
